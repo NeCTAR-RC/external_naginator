@@ -306,7 +306,6 @@ class CustomNagiosHostGroup(NagiosType):
             except KeyError:
                 LOG.error("Can't find facts for hostgroup %s" % fact_template)
                 raise
-            print (fact_name, fact_alias), node
             hostgroup[(fact_name, fact_alias)].append(node)
 
         # if there are no hosts in the group then exit
