@@ -16,7 +16,10 @@ class NagiosType(object):
     directives = None
 
     def __init__(self, db, output_dir,
-                 nodefacts=None, query=None, environment=None):
+                 nodefacts=None,
+                 query=None,
+                 environment=None,
+                 nagios_hosts=set()):
         self.db = db
         self.output_dir = output_dir
         self.environment = environment
@@ -25,6 +28,7 @@ class NagiosType(object):
         else:
             self.nodefacts = nodefacts
         self.query = query
+        self.nagios_hosts = nagios_hosts
         self.file = open(self.file_name(), 'w')
 
     def query_string(self, nagios_type=None):
@@ -83,6 +87,14 @@ class NagiosType(object):
                 LOG.info("duplicate: %s" % r.name)
                 continue
             unique_list.add(r.name)
+
+            if 'host_name' in r.parameters \
+               and r.parameters['host_name'] not in self.nagios_hosts:
+                LOG.info("Can't find host %s skipping %s, %s" % (
+                    r.parameters['host_name'],
+                    self.nagios_type,
+                    r.name))
+                continue
 
             self.file.write("define %s {\n" % self.nagios_type)
             self.generate_name(r)
@@ -144,6 +156,14 @@ class NagiosServiceGroup(NagiosType):
             if r.name in unique_list:
                 continue
             unique_list.add(r.name)
+
+            if 'host_name' in r.parameters \
+               and r.parameters['host_name'] not in self.nagios_hosts:
+                LOG.info("Can't find host %s skipping %s, %s" % (
+                    r.parameters['host_name'],
+                    self.nagios_type,
+                    r.name))
+                continue
 
             # Add servies to service group
             if 'host_name' in r.parameters:
@@ -263,7 +283,8 @@ class CustomNagiosHostGroup(NagiosType):
                  nodefacts=None,
                  nodes=None,
                  query=None,
-                 environment=None):
+                 environment=None,
+                 nagios_hosts=set()):
         self.nagios_type = name
         self.nodes = nodes
         super(CustomNagiosHostGroup, self).__init__(db=db,
@@ -287,17 +308,11 @@ class CustomNagiosHostGroup(NagiosType):
             else:
                 members.append(node)
 
-        nagios_hosts = set(
-            [h.name for h in self.db.resources(
-                query=self.query_string('Nagios_host'),
-                environment=self.environment)
-             if h.name in self.nodefacts])
-
         hostgroup = defaultdict(list)
         for node in members or self.nodes:
-            if node.name not in nagios_hosts:
-                LOG.debug("Skipping host with no nagios_host resource %s" %
-                          node.name)
+            if node.name not in self.nagios_hosts:
+                LOG.info("Skipping host with no nagios_host resource %s" %
+                         node.name)
                 continue
             facts = self.nodefacts[node.name]
             try:
@@ -338,16 +353,26 @@ class NagiosConfig:
         else:
             self.nodefacts = nodefacts
         self.query = query
+        self.nagios_hosts = self.get_nagios_hosts()
 
-    def query_string(self):
+    def query_string(self, **kwargs):
+        query_parts = []
+        for name, value in kwargs.items():
+            query_parts.append('["=", "%s", "%s"]' % (name, value))
+        return '["and", %s]' % ", ".join(query_parts)
+
+    def resource_query_string(self, **kwargs):
+        query = dict(self.query)
+        query.update(kwargs)
+        return self.query_string(**query)
+
+    def node_query_string(self, **kwargs):
         if not self.environment:
             return None
-        query_parts = []
-        query_parts.append('["=", "%s", "%s"]' % ('catalog-environment',
-                                                  self.environment))
-        query_parts.append('["=", "%s", "%s"]' % ('facts-environment',
-                                                  self.environment))
-        return '["and", %s]' % ", ".join(query_parts)
+        query = {'catalog-environment': self.environment,
+                 'facts-environment': self.environment}
+        query.update(kwargs)
+        return self.query_string(**query)
 
     def get_nodefacts(self):
         """
@@ -364,12 +389,23 @@ class NagiosConfig:
         """
         nodefacts = {}
         self.nodes = []
-        for node in self.db.nodes(query=self.query_string()):
+        for node in self.db.nodes(query=self.node_query_string()):
             self.nodes.append(node)
             nodefacts[node.name] = {}
             for f in node.facts():
                 nodefacts[node.name][f.name] = f.value
         return nodefacts
+
+    def get_nagios_hosts(self):
+        """This is used during other parts of the generation process to make
+        sure that there is host consistency.
+
+        """
+        return set(
+            [h.name for h in self.db.resources(
+                query=self.resource_query_string(type='Nagios_host'),
+                environment=self.environment)
+             if h.name in self.nodefacts])
 
     def generate_all(self):
         for cls in NagiosType.__subclasses__():
@@ -379,7 +415,8 @@ class NagiosConfig:
                        output_dir=self.output_dir,
                        nodefacts=self.nodefacts,
                        query=self.query,
-                       environment=self.environment)
+                       environment=self.environment,
+                       nagios_hosts=self.nagios_hosts)
             inst.generate()
 
 
@@ -458,5 +495,6 @@ if __name__ == '__main__':
                                           nodefacts=cfg.nodefacts,
                                           nodes=cfg.nodes,
                                           query=query,
-                                          environment=environment)
+                                          environment=environment,
+                                          nagios_hosts=cfg.nagios_hosts)
             group.generate(section, config.items(section))
