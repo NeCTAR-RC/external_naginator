@@ -165,7 +165,7 @@ class NagiosServiceGroup(NagiosType):
                     r.name))
                 continue
 
-            # Add servies to service group
+            # Add services to service group
             if 'host_name' in r.parameters:
                 host_name = r.parameters['host_name']
                 servicegroups[r.parameters['service_description']].append(host_name)
