@@ -404,8 +404,7 @@ class NagiosConfig:
         return set(
             [h.name for h in self.db.resources(
                 query=self.resource_query_string(type='Nagios_host'),
-                environment=self.environment)
-             if h.name in self.nodefacts])
+                environment=self.environment)])
 
     def generate_all(self):
         for cls in NagiosType.__subclasses__():
