@@ -5,6 +5,7 @@ Generate all the nagios configuration files based on puppetdb information.
 import sys
 import logging
 import ConfigParser
+from StringIO import StringIO
 from collections import defaultdict
 
 from pypuppetdb import connect
@@ -19,7 +20,7 @@ class NagiosType(object):
                  nodefacts=None,
                  query=None,
                  environment=None,
-                 nagios_hosts=set()):
+                 nagios_hosts={}):
         self.db = db
         self.output_dir = output_dir
         self.environment = environment
@@ -29,7 +30,6 @@ class NagiosType(object):
             self.nodefacts = nodefacts
         self.query = query
         self.nagios_hosts = nagios_hosts
-        self.file = open(self.file_name(), 'w')
 
     def query_string(self, nagios_type=None):
         if not nagios_type:
@@ -44,11 +44,11 @@ class NagiosType(object):
     def file_name(self):
         return "{0}/auto_{1}.cfg".format(self.output_dir, self.nagios_type)
 
-    def generate_name(self, resource):
-        self.file.write("  %-30s %s\n" % (self.nagios_type + '_name',
-                                          resource.name))
+    def generate_name(self, resource, stream):
+        stream.write("  %-30s %s\n" % (self.nagios_type + '_name',
+                                       resource.name))
 
-    def generate_parameters(self, resource):
+    def generate_parameters(self, resource, stream):
         for param_name, param_value in resource.parameters.items():
 
             if not param_value:
@@ -63,7 +63,13 @@ class NagiosType(object):
             if isinstance(param_value, list):
                 param_value = ",".join(param_value)
 
-            self.file.write("  %-30s %s\n" % (param_name, param_value))
+            stream.write("  %-30s %s\n" % (param_name, param_value))
+
+    def generate_resource(self, resource, stream):
+        stream.write("define %s {\n" % self.nagios_type)
+        self.generate_name(resource, stream)
+        self.generate_parameters(resource, stream)
+        stream.write("}\n")
 
     def generate(self):
         """
@@ -75,6 +81,7 @@ class NagiosType(object):
           auto_checks.cfg
         """
 
+        stream = open(self.file_name(), 'w')
         # Query puppetdb only throwing back the resource that match
         # the Nagios type.
         unique_list = set([])
@@ -87,20 +94,20 @@ class NagiosType(object):
                 LOG.info("duplicate: %s" % r.name)
                 continue
             unique_list.add(r.name)
-
-            if 'host_name' in r.parameters \
-               and r.parameters['host_name'] not in self.nagios_hosts:
-                LOG.info("Can't find host %s skipping %s, %s" % (
-                    r.parameters['host_name'],
-                    self.nagios_type,
-                    r.name))
+            if 'host_name' in r.parameters:
+                hostname = r.parameters.get('host_name')
+                if hostname not in self.nagios_hosts:
+                    LOG.info("Can't find host %s skipping %s, %s" % (
+                        r.parameters['host_name'],
+                        self.nagios_type,
+                        r.name))
+                else:
+                    s = StringIO()
+                    self.generate_resource(r, s)
+                    s.seek(0)
+                    self.nagios_hosts[hostname].append(s.read())
                 continue
-
-            self.file.write("define %s {\n" % self.nagios_type)
-            self.generate_name(r)
-            self.generate_parameters(r)
-            self.file.write("}\n")
-        self.file.close()
+            self.generate_resource(r, stream)
 
 
 class NagiosHost(NagiosType):
@@ -125,11 +132,44 @@ class NagiosHost(NagiosType):
                       'vrml_image', 'statusmap_image', '2d_coords',
                       '3d_coords', 'use'])
 
-    def generate_name(self, resource):
+    def generate_name(self, resource, stream):
         if resource.name in self.nodefacts or 'use' in resource.parameters:
-            self.file.write("  %-30s %s\n" % ("host_name", resource.name))
+            stream.write("  %-30s %s\n" % ("host_name", resource.name))
         else:
-            self.file.write("  %-30s %s\n" % ("name", resource.name))
+            stream.write("  %-30s %s\n" % ("name", resource.name))
+
+    def is_host(self, resource):
+        if resource.name in self.nodefacts or 'use' in resource.parameters:
+            return True
+        return False
+
+    def generate(self):
+        unique_list = set([])
+
+        stream = open(self.file_name(), 'w')
+        # Query puppetdb only throwing back the resource that match
+        # the Nagios type.
+        for r in self.db.resources(query=self.query_string(),
+                                   environment=self.environment):
+            # Make sure we do not try and make more than one resource
+            # for each one.
+            if r.name in unique_list:
+                LOG.info("duplicate: %s" % r.name)
+                continue
+            unique_list.add(r.name)
+
+            if self.is_host(r):
+                tmp_file = "{0}/host_{1}.cfg".format(self.output_dir,
+                                                          r.name)
+                f = open(tmp_file, 'w')
+                self.generate_resource(r, f)
+
+                for resource in sorted(self.nagios_hosts[r.name]):
+                    f.write(resource)
+                f.close()
+                continue
+            else:
+                self.generate_resource(r, stream)
 
 
 class NagiosServiceGroup(NagiosType):
@@ -210,9 +250,9 @@ class NagiosService(NagiosType):
                       'notes_url', 'action_url', 'icon_image',
                       'icon_image_alt', 'use'])
 
-    def generate_name(self, resource):
+    def generate_name(self, resource, stream):
         if 'host_name' not in resource.parameters:
-            self.file.write("  %-30s %s\n" % ("name", resource.name))
+            stream.write("  %-30s %s\n" % ("name", resource.name))
 
 
 class NagiosHostGroup(NagiosType):
@@ -284,7 +324,7 @@ class CustomNagiosHostGroup(NagiosType):
                  nodes=None,
                  query=None,
                  environment=None,
-                 nagios_hosts=set()):
+                 nagios_hosts={}):
         self.nagios_type = name
         self.nodes = nodes
         super(CustomNagiosHostGroup, self).__init__(db=db,
@@ -356,7 +396,9 @@ class NagiosConfig:
         else:
             self.nodefacts = nodefacts
         self.query = query
-        self.nagios_hosts = self.get_nagios_hosts()
+        self.nagios_hosts = defaultdict(list,
+                                        [(h, [])
+                                         for h in self.get_nagios_hosts()])
 
     def query_string(self, **kwargs):
         query_parts = []
@@ -413,6 +455,8 @@ class NagiosConfig:
         for cls in NagiosType.__subclasses__():
             if cls.__name__.startswith('Custom'):
                 continue
+            if cls.__name__ == 'NagiosHost':
+                continue
             inst = cls(db=self.db,
                        output_dir=self.output_dir,
                        nodefacts=self.nodefacts,
@@ -421,6 +465,13 @@ class NagiosConfig:
                        nagios_hosts=self.nagios_hosts)
             inst.generate()
 
+        hosts = NagiosHost(db=self.db,
+                           output_dir=self.output_dir,
+                           nodefacts=self.nodefacts,
+                           query=self.query,
+                           environment=self.environment,
+                           nagios_hosts=self.nagios_hosts)
+        hosts.generate()
 
 if __name__ == '__main__':
     import argparse
