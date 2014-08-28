@@ -340,9 +340,12 @@ class CustomNagiosHostGroup(NagiosType):
 
 class NagiosConfig:
     def __init__(self, hostname, port, api_version, output_dir,
-                 nodefacts=None, query=None, environment=None):
+                 nodefacts=None, query=None, environment=None,
+                 ssl_key=None, ssl_cert=None):
         self.db = connect(host=hostname,
                           port=port,
+                          ssl_key=ssl_key,
+                          ssl_cert=ssl_cert,
                           api_version=api_version,
                           timeout=20)
         self.db.resources = self.db.resources
@@ -476,13 +479,23 @@ if __name__ == '__main__':
         environment = config.get('puppet', 'environment')
     except:
         environment = None
+    try:
+        ssl_key = config.get('puppet', 'ssl_key')
+    except:
+        ssl_key = None
+    try:
+        ssl_cert = config.get('puppet', 'ssl_cert')
+    except:
+        ssl_cert = None
 
     cfg = NagiosConfig(hostname=args.host,
                        port=args.port,
                        api_version=args.api_version,
                        output_dir=args.output_dir,
                        query=query,
-                       environment=environment)
+                       environment=environment,
+                       ssl_key=ssl_key,
+                       ssl_cert=ssl_cert)
     cfg.generate_all()
 
     if config:
