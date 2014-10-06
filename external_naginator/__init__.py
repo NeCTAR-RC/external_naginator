@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Generate all the nagios configuration files based on puppetdb information.
 """
@@ -10,7 +9,7 @@ from collections import defaultdict
 
 from pypuppetdb import connect
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 class NagiosType(object):
@@ -159,8 +158,8 @@ class NagiosHost(NagiosType):
             unique_list.add(r.name)
 
             if self.is_host(r):
-                tmp_file = "{0}/host_{1}.cfg".format(self.output_dir,
-                                                          r.name)
+                tmp_file = ("{0}/host_{1}.cfg"
+                            .format(self.output_dir, r.name))
                 f = open(tmp_file, 'w')
                 self.generate_resource(r, f)
 
@@ -208,11 +207,12 @@ class NagiosServiceGroup(NagiosType):
             # Add services to service group
             if 'host_name' in r.parameters:
                 host_name = r.parameters['host_name']
-                servicegroups[r.parameters['service_description']].append(host_name)
+                servicegroups[r.parameters['service_description']]\
+                    .append(host_name)
 
         for servicegroup_name, host_list in servicegroups.items():
-            tmp_file = "{0}/auto_servicegroup_{1}.cfg".format(self.output_dir,
-                                                              servicegroup_name)
+            tmp_file = ("{0}/auto_servicegroup_{1}.cfg"
+                        .format(self.output_dir, servicegroup_name))
 
             members = []
             for host in host_list:
@@ -473,7 +473,8 @@ class NagiosConfig:
                            nagios_hosts=self.nagios_hosts)
         hosts.generate()
 
-if __name__ == '__main__':
+
+def main():
     import argparse
 
     class ArgumentParser(argparse.ArgumentParser):
