@@ -1,15 +1,91 @@
 """
 Generate all the nagios configuration files based on puppetdb information.
 """
+import os
 import sys
+import grp
+import stat
 import logging
 import ConfigParser
+import filecmp
+import shutil
+import tempfile
+import subprocess
+from os import path
 from StringIO import StringIO
 from collections import defaultdict
+from contextlib import contextmanager
 
 from pypuppetdb import connect
 
 LOG = logging.getLogger(__name__)
+
+
+@contextmanager
+def temporary_dir(*args, **kwds):
+    name = tempfile.mkdtemp(*args, **kwds)
+    set_permissions(name, stat.S_IRGRP + stat.S_IXGRP)
+    try:
+        yield name
+    finally:
+        shutil.rmtree(name)
+
+
+@contextmanager
+def nagios_config(config_dir):
+    temp_dir = tempfile.mkdtemp()
+    set_permissions(temp_dir, stat.S_IRGRP + stat.S_IWGRP + stat.S_IXGRP)
+    with tempfile.NamedTemporaryFile() as config:
+        set_permissions(config.name, stat.S_IRGRP)
+        config_lines = ["cfg_file=/etc/nagios3/commands.cfg",
+                        "cfg_dir=/etc/nagios-plugins/config",
+                        "cfg_dir=%s" % config_dir,
+                        "check_result_path=%s" % temp_dir]
+        config.write("\n".join(config_lines))
+        config.flush()
+        try:
+            yield config.name
+        finally:
+            shutil.rmtree(temp_dir)
+
+
+def nagios_verify(config_dir, config_file=None):
+    with nagios_config(config_dir) as tmp_config_file:
+        LOG.info("Validating Nagios config %s" % config_dir)
+        p = subprocess.Popen(['/usr/sbin/nagios3', '-v',
+                              config_file or tmp_config_file],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        output, err = p.communicate()
+        return_code = p.returncode
+        if return_code > 0:
+            print(output)
+            raise Exception("Nagios validation failed.")
+
+
+def nagios_restart():
+    """Restart Nagios"""
+    LOG.info("Restarting Nagios")
+    p = subprocess.Popen(['/usr/sbin/service', 'nagios3', 'restart'],
+                         stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    output, err = p.communicate()
+    return_code = p.returncode
+    if return_code > 0:
+        print(output)
+        raise Exception("Failed to restart Nagios.")
+
+
+def nagios_gid():
+    return grp.getgrnam('nagios').gr_gid
+
+
+def set_permissions(path, mode):
+    if os.getuid() == 0:
+        os.chmod(path, mode)
+        os.chown(path, -1, nagios_gid())
 
 
 class NagiosType(object):
@@ -473,6 +549,37 @@ class NagiosConfig:
                            nagios_hosts=self.nagios_hosts)
         hosts.generate()
 
+    def verify(self):
+        return nagios_verify(self.output_dir)
+
+
+def update_nagios(new_config_dir, updated_config, backup_dir, output_dir):
+    # Backup the existing configuration
+    shutil.copytree(output_dir, backup_dir)
+
+    for filename in updated_config:
+        shutil.copy(path.join(new_config_dir, filename),
+                    path.join(output_dir, filename))
+
+    try:
+        nagios_verify(output_dir, '/etc/nagios3/nagios.cfg')
+    except:
+        # Remove the new config
+        map(lambda d: os.remove(path.join(output_dir, d)),
+            os.listdir(output_dir))
+        # Copy the backup back
+        for filename in os.listdir(backup_dir):
+            shutil.copy(path.join(backup_dir, filename),
+                        path.join(output_dir, filename))
+        raise
+
+
+def config_get(config, section, option, default=None):
+    try:
+        return config.get(section, option)
+    except:
+        return default
+
 
 def main():
     import argparse
@@ -491,6 +598,9 @@ def main():
     parser.add_argument(
         '-c', '--config', action='store',
         help="The location of the configuration file..")
+    parser.add_argument(
+        '--update', action='store_true',
+        help="Update the Nagios configuration files.")
     parser.add_argument(
         '--host', action='store', default='localhost',
         help="The hostname of the puppet DB server.")
@@ -517,49 +627,42 @@ def main():
         stream=sys.stderr,
         format='%(asctime)s %(name)s %(levelname)s %(message)s')
 
-    config = None
+    config = ConfigParser.ConfigParser()
     if args.config:
-        config = ConfigParser.ConfigParser()
         config.readfp(open(args.config))
 
     query = None
-    if config:
-        if 'query' in config.sections():
-            query = config.items('query')
+    if 'query' in config.sections():
+        query = config.items('query')
 
-    try:
-        environment = config.get('puppet', 'environment')
-    except:
-        environment = None
-    try:
-        ssl_key = config.get('puppet', 'ssl_key')
-    except:
-        ssl_key = None
-    try:
-        ssl_cert = config.get('puppet', 'ssl_cert')
-    except:
-        ssl_cert = None
-    try:
-        timeout = config.get('puppet', 'timeout')
-    except:
-        timeout = 20
+    environment = config_get(config, 'puppet', 'environment')
+    ssl_key = config_get(config, 'puppet', 'ssl_key')
+    ssl_cert = config_get(config, 'puppet', 'ssl_cert')
+    timeout = config_get(config, 'puppet', 'timeout', 20)
 
-    cfg = NagiosConfig(hostname=args.host,
-                       port=args.port,
-                       api_version=args.api_version,
-                       output_dir=args.output_dir,
-                       query=query,
-                       environment=environment,
-                       ssl_key=ssl_key,
-                       ssl_cert=ssl_cert,
-                       timeout=timeout)
-    cfg.generate_all()
+    with temporary_dir() as tmp_dir:
+        new_config_dir = path.join(tmp_dir, 'new_config')
 
-    if config:
+        # Generate new configuration
+        os.mkdir(new_config_dir)
+        set_permissions(new_config_dir, stat.S_IRGRP + stat.S_IXGRP)
+
+        cfg = NagiosConfig(hostname=args.host,
+                           port=args.port,
+                           api_version=args.api_version,
+                           output_dir=new_config_dir,
+                           query=query,
+                           environment=environment,
+                           ssl_key=ssl_key,
+                           ssl_cert=ssl_cert,
+                           timeout=timeout)
+        cfg.generate_all()
+
         for section in config.sections():
             if not section.startswith('hostgroup_'):
                 continue
-            group = CustomNagiosHostGroup(cfg.db, args.output_dir,
+            group = CustomNagiosHostGroup(cfg.db,
+                                          new_config_dir,
                                           section,
                                           nodefacts=cfg.nodefacts,
                                           nodes=cfg.nodes,
@@ -567,3 +670,22 @@ def main():
                                           environment=environment,
                                           nagios_hosts=cfg.nagios_hosts)
             group.generate(section, config.items(section))
+
+        # If not running in update mode
+        if not args.update:
+            return
+
+        output_dir = args.output_dir
+        backup_dir = path.join(tmp_dir, 'backup_config')
+
+        # Generate list of changed and added files
+        diff = filecmp.dircmp(new_config_dir, output_dir)
+        updated_config = diff.diff_files + diff.left_only
+        if not updated_config:
+            sys.exit(0)
+
+        # Validate new configuration
+        cfg.verify()
+
+        update_nagios(new_config_dir, updated_config, backup_dir, output_dir)
+        nagios_restart()
