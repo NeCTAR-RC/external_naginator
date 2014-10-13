@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_69aae2d5",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-13T04:55:52Z",
+      "side": 1,
+      "message": "I think backslashes are nasty. I\u0027ll usually add parentheses rather than backslashing.\n\nI reckon:\n\n    tmp_file \u003d \"{0}/host_{1}.cfg\".format(self.output_dir,\n                                         r.name)\n\nIs much easier to read. But maybe just me.",
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c9ae76e7",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-13T04:55:52Z",
+      "side": 1,
+      "message": "Was this line too long? I prefer the old version...",
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_89a58e06",
+        "filename": "tests/test_basic.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2014-10-13T04:55:52Z",
+      "side": 1,
+      "message": "-a",
+      "range": {
+        "startLine": 4,
+        "startChar": 14,
+        "endLine": 4,
+        "endChar": 15
+      },
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
