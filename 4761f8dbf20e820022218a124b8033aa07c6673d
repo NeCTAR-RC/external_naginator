@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_b6fee536",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2014-10-13T00:32:09Z",
+      "side": 1,
+      "message": "Would be good to take a backup of the config dir and then revert back if you get here",
+      "range": {
+        "startLine": 623,
+        "startChar": 8,
+        "endLine": 623,
+        "endChar": 13
+      },
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_16fc193e",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2014-10-13T00:32:09Z",
+      "side": 1,
+      "message": "Do another verification here before restarting",
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
