@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_09db5e1c",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_69aae2d5",
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_c9ae76e7",
         "filename": "external_naginator/__init__.py",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_e9d7f2eb",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_c9ae76e7",
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_89a58e06",
         "filename": "tests/test_basic.py",
         "patchSetId": 1
@@ -47,6 +83,30 @@
       "writtenOn": "2014-10-13T04:55:52Z",
       "side": 1,
       "message": "-a",
+      "range": {
+        "startLine": 4,
+        "startChar": 14,
+        "endLine": 4,
+        "endChar": 15
+      },
+      "revId": "337a118b26090f962c3d703d92017745cd47482c",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c9f7968b",
+        "filename": "tests/test_basic.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_89a58e06",
       "range": {
         "startLine": 4,
         "startChar": 14,
