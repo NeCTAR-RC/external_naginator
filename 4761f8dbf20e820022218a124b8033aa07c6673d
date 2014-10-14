@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_492ba6eb",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:16:37Z",
+      "side": 1,
+      "message": "i now have a rollback",
+      "parentUuid": "3afa9182_49828653",
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_b6fee536",
         "filename": "external_naginator/__init__.py",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2014-10-13T00:32:09Z",
       "side": 1,
       "message": "Would be good to take a backup of the config dir and then revert back if you get here",
+      "range": {
+        "startLine": 623,
+        "startChar": 8,
+        "endLine": 623,
+        "endChar": 13
+      },
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c93e7629",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:16:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_b6fee536",
       "range": {
         "startLine": 623,
         "startChar": 8,
@@ -77,6 +119,42 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_2930da55",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:16:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_16fc193e",
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_89358e48",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:16:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_29873a63",
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_e9b53232",
         "filename": "external_naginator/__init__.py",
         "patchSetId": 1
@@ -88,6 +166,24 @@
       "writtenOn": "2014-10-13T05:13:44Z",
       "side": 1,
       "message": "This will never be reached",
+      "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_693ae237",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2014-10-14T06:16:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_e9b53232",
       "revId": "4761f8dbf20e820022218a124b8033aa07c6673d",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
