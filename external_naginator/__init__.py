@@ -553,14 +553,19 @@ class NagiosConfig:
         return nagios_verify(self.output_dir)
 
 
-def update_nagios(new_config_dir, updated_config, backup_dir, output_dir):
+def update_nagios(new_config_dir, updated_config, removed_config,
+                  backup_dir, output_dir):
     # Backup the existing configuration
     shutil.copytree(output_dir, backup_dir)
 
     for filename in updated_config:
+        LOG.info("Copying changed file: %s" % filename)
         shutil.copy(path.join(new_config_dir, filename),
                     path.join(output_dir, filename))
 
+    for filename in removed_config:
+        LOG.info("Removing files: %s" % filename)
+        os.remove(path.join(output_dir, filename))
     try:
         nagios_verify(output_dir, '/etc/nagios3/nagios.cfg')
     except:
@@ -681,11 +686,14 @@ def main():
         # Generate list of changed and added files
         diff = filecmp.dircmp(new_config_dir, output_dir)
         updated_config = diff.diff_files + diff.left_only
+        # Only remove the auto files, leaving the old hosts.
+        removed_config = [f for f in diff.right_only if f.startswith('auto_')]
         if not updated_config:
             sys.exit(0)
 
         # Validate new configuration
         cfg.verify()
 
-        update_nagios(new_config_dir, updated_config, backup_dir, output_dir)
+        update_nagios(new_config_dir, updated_config, removed_config,
+                      backup_dir, output_dir)
         nagios_restart()
