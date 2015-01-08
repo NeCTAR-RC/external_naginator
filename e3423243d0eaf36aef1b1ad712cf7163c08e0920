@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_c5e65e16",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2015-01-08T04:01:26Z",
+      "side": 1,
+      "message": "Can\u0027t see how this could ever be valid since this class and subclasses never define this method. I would remove the if entirely and just take nodefacts as-is.",
+      "revId": "e3423243d0eaf36aef1b1ad712cf7163c08e0920",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
