@@ -1,1 +1,1 @@
--e git+git://github.com/daniellawrence/pypuppetdb#egg=pypuppetdb
+-e git+git://github.com/NeCTAR-RC/pypuppetdb#egg=pypuppetdb
