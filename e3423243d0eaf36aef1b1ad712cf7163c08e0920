@@ -16,6 +16,24 @@
       "revId": "e3423243d0eaf36aef1b1ad712cf7163c08e0920",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_c5f77e8b",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-01-12T00:56:23Z",
+      "side": 1,
+      "message": "Yep.  Your right.  there was a time where this was valid seems it\u0027s not any more.  So this if should be removed completely.",
+      "parentUuid": "1af78d9a_c5e65e16",
+      "revId": "e3423243d0eaf36aef1b1ad712cf7163c08e0920",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
