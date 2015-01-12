@@ -99,10 +99,7 @@ class NagiosType(object):
         self.db = db
         self.output_dir = output_dir
         self.environment = environment
-        if not nodefacts:
-            self.nodefacts = self.get_nodefacts()
-        else:
-            self.nodefacts = nodefacts
+        self.nodefacts = nodefacts
         self.query = query
         self.nagios_hosts = nagios_hosts
 
