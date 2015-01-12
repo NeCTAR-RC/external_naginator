@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_e51c3ac4",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-01-12T04:34:33Z",
+      "side": 1,
+      "message": "no head",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 12
+      },
+      "revId": "baf61744207479e5d86f2b6e63772049e443100f",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
