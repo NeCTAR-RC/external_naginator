@@ -32,15 +32,25 @@ def temporary_dir(*args, **kwds):
 
 
 @contextmanager
-def nagios_config(config_dir):
+def nagios_config(config_dirs):
+    """
+    .. function:: nagios_config(config_dirs)
+
+    Combine the config_dirs with builtin nagios commands and nagios-plugins
+    commands as a temporary file.
+
+    :param config_dirs: name(s) of directory/ies to be tested
+    :type config_dirs: list
+    :rtype: str
+    """
     temp_dir = tempfile.mkdtemp()
     set_permissions(temp_dir, stat.S_IRGRP + stat.S_IWGRP + stat.S_IXGRP)
     with tempfile.NamedTemporaryFile() as config:
         set_permissions(config.name, stat.S_IRGRP)
         config_lines = ["cfg_file=/etc/nagios3/commands.cfg",
                         "cfg_dir=/etc/nagios-plugins/config",
-                        "cfg_dir=%s" % config_dir,
                         "check_result_path=%s" % temp_dir]
+        config_lines.extend(["cfg_dir=%s" % s for s in config_dirs])
         config.write("\n".join(config_lines))
         config.flush()
         try:
@@ -49,9 +59,13 @@ def nagios_config(config_dir):
             shutil.rmtree(temp_dir)
 
 
-def nagios_verify(config_dir, config_file=None):
-    with nagios_config(config_dir) as tmp_config_file:
-        LOG.info("Validating Nagios config %s" % config_dir)
+def nagios_verify(config_dir, config_file=None, extra_dirs=None):
+    config_dirs = [config_dir]
+    if extra_dirs:
+        config_dirs.extend(extra_dirs)
+
+    with nagios_config(config_dirs) as tmp_config_file:
+        LOG.info("Validating Nagios config %s" % ', '.join(config_dirs))
         p = subprocess.Popen(['/usr/sbin/nagios3', '-v',
                               config_file or tmp_config_file],
                              stdin=subprocess.PIPE,
@@ -551,7 +565,7 @@ class NagiosConfig:
 
 
 def update_nagios(new_config_dir, updated_config, removed_config,
-                  backup_dir, output_dir):
+                  backup_dir, output_dir, extra_dirs=None):
     # Backup the existing configuration
     shutil.copytree(output_dir, backup_dir)
 
@@ -564,7 +578,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
         LOG.info("Removing files: %s" % filename)
         os.remove(path.join(output_dir, filename))
     try:
-        nagios_verify(output_dir, '/etc/nagios3/nagios.cfg')
+        nagios_verify(output_dir, '/etc/nagios3/nagios.cfg', extra_dirs)
     except:
         # Remove the new config
         map(lambda d: os.remove(path.join(output_dir, d)),
@@ -601,6 +615,9 @@ def main():
         '-c', '--config', action='store',
         help="The location of the configuration file..")
     parser.add_argument(
+        '-x', '--extra-directories', action='store',
+        help="directories to include in verification.")
+    parser.add_argument(
         '--update', action='store_true',
         help="Update the Nagios configuration files.")
     parser.add_argument(
@@ -632,6 +649,11 @@ def main():
     config = ConfigParser.ConfigParser()
     if args.config:
         config.readfp(open(args.config))
+
+    if args.extra_directories:
+        extra_dirs = args.extra_directories.split(',')
+    else:
+        extra_dirs = None
 
     query = None
     if 'query' in config.sections():
@@ -692,5 +714,5 @@ def main():
         cfg.verify()
 
         update_nagios(new_config_dir, updated_config, removed_config,
-                      backup_dir, output_dir)
+                      backup_dir, output_dir, extra_dirs=extra_dirs)
         nagios_restart()
