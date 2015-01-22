@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_8dc64548",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2015-01-22T23:56:19Z",
+      "side": 1,
+      "message": "Accepting a list *and* a string makes this a bit confusing. Make this just accept a list and do the parsing in your main().",
+      "revId": "3ea2191941941229fa0206ae5a756c27d1ad3a23",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_edc38136",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2015-01-22T23:56:19Z",
+      "side": 1,
+      "message": "Assume extra_dirs is a list or None here and do any parsing you need to do in your main().\n\nSo this would end up something like:\n\n\n    if extra_dirs is not None:\n        config_dirs \u003d [config_dir] + extra_dirs",
+      "revId": "3ea2191941941229fa0206ae5a756c27d1ad3a23",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_cdc03d2d",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2015-01-22T23:56:19Z",
+      "side": 1,
+      "message": "I think this already defaults to None so you don\u0027t need the if.",
+      "revId": "3ea2191941941229fa0206ae5a756c27d1ad3a23",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
