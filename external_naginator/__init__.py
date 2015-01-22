@@ -59,6 +59,8 @@ def nagios_verify(config_dir, config_file=None):
                              stderr=subprocess.PIPE)
         output, err = p.communicate()
         return_code = p.returncode
+        LOG.debug(output)
+        LOG.debug(err)
         if return_code > 0:
             print(output)
             raise Exception("Nagios validation failed.")
