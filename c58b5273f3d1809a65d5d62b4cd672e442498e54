@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_8d73e5e6",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-01-27T23:47:03Z",
+      "side": 1,
+      "message": "why not just have one config_dirs variable, that way you can always expect a list.",
+      "range": {
+        "startLine": 62,
+        "startChar": 18,
+        "endLine": 62,
+        "endChar": 65
+      },
+      "revId": "c58b5273f3d1809a65d5d62b4cd672e442498e54",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_ed80a18d",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-01-27T23:47:03Z",
+      "side": 1,
+      "message": "i think this would be better as a config file variable since it\u0027s unlikely to me changed at the command line.  what do you think?",
+      "range": {
+        "startLine": 618,
+        "startChar": 1,
+        "endLine": 619,
+        "endChar": 32
+      },
+      "revId": "c58b5273f3d1809a65d5d62b4cd672e442498e54",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
