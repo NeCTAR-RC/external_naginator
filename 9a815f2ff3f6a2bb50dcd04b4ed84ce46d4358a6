@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_13871663",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-02-02T03:00:39Z",
+      "side": 1,
+      "message": "this doesn\u0027t make sense any more.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 41
+      },
+      "revId": "9a815f2ff3f6a2bb50dcd04b4ed84ce46d4358a6",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_33821a53",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 1000084
+      },
+      "writtenOn": "2015-02-02T03:00:39Z",
+      "side": 1,
+      "message": "at this point in the processing the output directory and the list of all config directories have different meanings.  Assuming that the first element of the list is the destination directory is bad.",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 574,
+        "endChar": 52
+      },
+      "revId": "9a815f2ff3f6a2bb50dcd04b4ed84ce46d4358a6",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
