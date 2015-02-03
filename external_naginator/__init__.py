@@ -579,7 +579,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
         LOG.info("Removing files: %s" % filename)
         os.remove(path.join(output_dir, filename))
     try:
-        nagios_verify([output_dir] + extra_cfg_dirs, '/etc/nagios3/nagios.cfg')
+        nagios_verify(output_dir + extra_cfg_dirs, '/etc/nagios3/nagios.cfg')
     except:
         # Remove the new config
         map(lambda d: os.remove(path.join(output_dir, d)),
