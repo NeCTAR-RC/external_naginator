@@ -567,7 +567,8 @@ class NagiosConfig:
 
 
 def update_nagios(new_config_dir, updated_config, removed_config,
-                  backup_dir, output_dir, extra_cfg_dirs=[]):
+                  backup_dir, output_dir, nagios_cfg='/etc/nagios3/nagios.cfg',
+                  extra_cfg_dirs=[]):
     # Backup the existing configuration
     shutil.copytree(output_dir, backup_dir)
 
@@ -579,8 +580,10 @@ def update_nagios(new_config_dir, updated_config, removed_config,
     for filename in removed_config:
         LOG.info("Removing files: %s" % filename)
         os.remove(path.join(output_dir, filename))
+
+    # Verify the config in place.
     try:
-        nagios_verify([output_dir] + extra_cfg_dirs, '/etc/nagios3/nagios.cfg')
+        nagios_verify([output_dir] + extra_cfg_dirs, nagios_cfg)
     except:
         # Remove the new config
         map(lambda d: os.remove(path.join(output_dir, d)),
@@ -659,6 +662,7 @@ def main():
     timeout = int(config_get(config, 'puppet', 'timeout', 20))
     # Nagios Variables
     get_nagios_cfg = partial(config_get, config, 'nagios')
+    nagios_cfg = get_nagios_cfg('nagios_cfg', '/etc/nagios3/nagios.cfg')
     extra_cfg_dirs = [d.strip()
                       for d in get_nagios_cfg('extra_cfg_dirs', '').split(',')]
 
@@ -711,6 +715,7 @@ def main():
         # Validate new configuration
         cfg.verify()
 
-        update_nagios(new_config_dir, updated_config, removed_config,
-                      backup_dir, output_dir, extra_cfg_dirs=extra_cfg_dirs)
+        update_nagios(config.output_dir, updated_config, removed_config,
+                      backup_dir, output_dir, nagios_cfg=nagios_cfg,
+                      extra_cfg_dirs=extra_cfg_dirs)
         nagios_restart()
