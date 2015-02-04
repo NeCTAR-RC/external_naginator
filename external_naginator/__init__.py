@@ -15,6 +15,7 @@ from os import path
 from StringIO import StringIO
 from collections import defaultdict
 from contextlib import contextmanager
+from functools import partial
 
 from pypuppetdb import connect
 
@@ -657,12 +658,10 @@ def main():
     ssl_key = config_get(config, 'puppet', 'ssl_key')
     ssl_cert = config_get(config, 'puppet', 'ssl_cert')
     timeout = int(config_get(config, 'puppet', 'timeout', 20))
-    # comma separated list of extra dirs to include in validation.
-    extra_cfg_dirs = config_get(config, 'main', 'extra_cfg_dirs')
-    if extra_cfg_dirs:
-        extra_cfg_dirs = [d.strip() for d in extra_cfg_dirs.split(',')]
-    else:
-        extra_cfg_dirs = []
+    # Nagios Variables
+    get_nagios_cfg = partial(config_get, config, 'nagios')
+    extra_cfg_dirs = [d.strip()
+                      for d in get_nagios_cfg('extra_cfg_dirs', '').split(',')]
 
     with temporary_dir() as tmp_dir:
         new_config_dir = path.join(tmp_dir, 'new_config')
