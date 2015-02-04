@@ -615,7 +615,7 @@ def main():
     parser = ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        '--output-dir', action='store', required=True,
+        '--output-dir', action='store', required=True, type=path.abspath,
         help="The directory to write the Nagios config into.")
     parser.add_argument(
         '-c', '--config', action='store',
