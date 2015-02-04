@@ -561,8 +561,9 @@ class NagiosConfig:
                            nagios_hosts=self.nagios_hosts)
         hosts.generate()
 
-    def verify(self):
-        return nagios_verify([self.output_dir])
+    def verify(self, extra_cfg_dirs=[]):
+        LOG.debug("NagiosConfig.verify got extra_cfg_dirs %s" % extra_cfg_dirs)
+        return nagios_verify([self.output_dir] + extra_cfg_dirs)
 
 
 def update_nagios(new_config_dir, updated_config, removed_config,
@@ -710,7 +711,7 @@ def main():
             sys.exit(0)
 
         # Validate new configuration
-        cfg.verify()
+        cfg.verify(extra_cfg_dirs=extra_cfg_dirs)
 
         update_nagios(new_config_dir, updated_config, removed_config,
                       backup_dir, output_dir, extra_cfg_dirs=extra_cfg_dirs)
