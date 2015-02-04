@@ -4,6 +4,7 @@ Generate all the nagios configuration files based on puppetdb information.
 import os
 import sys
 import grp
+import pdb
 import stat
 import logging
 import ConfigParser
@@ -11,6 +12,7 @@ import filecmp
 import shutil
 import tempfile
 import subprocess
+import traceback
 from os import path
 from StringIO import StringIO
 from collections import defaultdict
@@ -624,6 +626,9 @@ def main():
         '--update', action='store_true',
         help="Update the Nagios configuration files.")
     parser.add_argument(
+        '--no-restart', action='store_true', default=False,
+        help="Restart the Nagios service.")
+    parser.add_argument(
         '--host', action='store', default='localhost',
         help="The hostname of the puppet DB server.")
     parser.add_argument(
@@ -632,6 +637,9 @@ def main():
     parser.add_argument(
         '-V', '--api-version', action='store', default=4, type=int,
         help="The puppet DB version")
+    parser.add_argument(
+        '--pdb', action='store_true', default=False,
+        help="Unable PDB on error.")
     parser.add_argument(
         '-v', '--verbose', action='count', default=0,
         help="Increase verbosity (specify multiple times for more)")
@@ -670,6 +678,39 @@ def main():
     extra_cfg_dirs = [d.strip()
                       for d in get_nagios_cfg('extra_cfg_dirs', '').split(',')]
 
+    hostgroups = {}
+    for section in config.sections():
+        if not section.startswith('hostgroup_'):
+            continue
+        hostgroups[section] = config.items(section)
+
+    try:
+        with generate_config(hostname=args.host,
+                             port=args.port,
+                             api_version=args.api_version,
+                             query=query,
+                             environment=environment,
+                             ssl_key=ssl_key,
+                             ssl_cert=ssl_cert,
+                             timeout=timeout,
+                             hostgroups=hostgroups) as nagios_config:
+            if args.update:
+                update_config(nagios_config, args.output_dir,
+                              nagios_cfg, extra_cfg_dirs)
+        if not args.no_restart:
+            nagios_restart()
+    except:
+        if args.pdb:
+            type, value, tb = sys.exc_info()
+            traceback.print_exc()
+            pdb.post_mortem(tb)
+        else:
+            raise
+
+
+@contextmanager
+def generate_config(hostname, port, api_version, query, environment,
+                    ssl_key, ssl_cert, timeout, hostgroups={}):
     with temporary_dir() as tmp_dir:
         new_config_dir = path.join(tmp_dir, 'new_config')
 
@@ -677,9 +718,9 @@ def main():
         os.mkdir(new_config_dir)
         set_permissions(new_config_dir, stat.S_IRGRP + stat.S_IXGRP)
 
-        cfg = NagiosConfig(hostname=args.host,
-                           port=args.port,
-                           api_version=args.api_version,
+        cfg = NagiosConfig(hostname=hostname,
+                           port=port,
+                           api_version=api_version,
                            output_dir=new_config_dir,
                            query=query,
                            environment=environment,
@@ -688,38 +729,38 @@ def main():
                            timeout=timeout)
         cfg.generate_all()
 
-        for section in config.sections():
-            if not section.startswith('hostgroup_'):
-                continue
+        for name, cfg in hostgroups.items():
             group = CustomNagiosHostGroup(cfg.db,
                                           new_config_dir,
-                                          section,
+                                          name,
                                           nodefacts=cfg.nodefacts,
                                           nodes=cfg.nodes,
                                           query=query,
                                           environment=environment,
                                           nagios_hosts=cfg.nagios_hosts)
-            group.generate(section, config.items(section))
+            group.generate(name, cfg)
+        try:
+            yield cfg
+        finally:
+            pass
 
-        # If not running in update mode
-        if not args.update:
-            return
 
-        output_dir = args.output_dir
+def update_config(config, output_dir, nagios_cfg, extra_cfg_dirs):
+    with temporary_dir() as tmp_dir:
         backup_dir = path.join(tmp_dir, 'backup_config')
 
         # Generate list of changed and added files
-        diff = filecmp.dircmp(new_config_dir, output_dir)
+        diff = filecmp.dircmp(config.output_dir, output_dir)
         updated_config = diff.diff_files + diff.left_only
         # Only remove the auto files, leaving the old hosts.
         removed_config = [f for f in diff.right_only if f.startswith('auto_')]
         if not updated_config:
-            sys.exit(0)
+            return
 
         # Validate new configuration
-        cfg.verify(extra_cfg_dirs=extra_cfg_dirs)
+        config.verify(extra_cfg_dirs=extra_cfg_dirs)
 
-        update_nagios(new_config_dir, updated_config, removed_config,
+        update_nagios(config.output_dir, updated_config, removed_config,
                       backup_dir, output_dir, nagios_cfg=nagios_cfg,
                       extra_cfg_dirs=extra_cfg_dirs)
         nagios_restart()
