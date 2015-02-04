@@ -657,10 +657,13 @@ def main():
     if 'query' in config.sections():
         query = config.items('query')
 
-    environment = config_get(config, 'puppet', 'environment')
-    ssl_key = config_get(config, 'puppet', 'ssl_key')
-    ssl_cert = config_get(config, 'puppet', 'ssl_cert')
-    timeout = int(config_get(config, 'puppet', 'timeout', 20))
+    # PuppetDB Variables
+    get_puppet_cfg = partial(config_get, config, 'puppet')
+    environment = get_puppet_cfg('environment')
+    ssl_key = get_puppet_cfg('ssl_key')
+    ssl_cert = get_puppet_cfg('ssl_cert')
+    timeout = int(get_puppet_cfg('timeout', 20))
+
     # Nagios Variables
     get_nagios_cfg = partial(config_get, config, 'nagios')
     nagios_cfg = get_nagios_cfg('nagios_cfg', '/etc/nagios3/nagios.cfg')
