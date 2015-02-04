@@ -468,7 +468,7 @@ class CustomNagiosHostGroup(NagiosType):
 
 class NagiosConfig:
     def __init__(self, hostname, port, api_version, output_dir,
-                 nodefacts=None, query=None, environment=None,
+                 nodefacts=None, query={}, environment=None,
                  ssl_key=None, ssl_cert=None, timeout=None):
         self.db = connect(host=hostname,
                           port=port,
@@ -649,7 +649,7 @@ def main():
     if args.config:
         config.readfp(open(args.config))
 
-    query = None
+    query = {}
     if 'query' in config.sections():
         query = config.items('query')
 
