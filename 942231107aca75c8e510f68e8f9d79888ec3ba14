@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_b388cac7",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1000105
+      },
+      "writtenOn": "2015-02-04T06:18:39Z",
+      "side": 1,
+      "message": "I can see why you want to add this but its got nothing to do with the commit message.",
+      "revId": "942231107aca75c8e510f68e8f9d79888ec3ba14",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
