@@ -16,6 +16,24 @@
       "revId": "942231107aca75c8e510f68e8f9d79888ec3ba14",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_d38f3ecb",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1000105
+      },
+      "writtenOn": "2015-02-04T06:49:22Z",
+      "side": 1,
+      "message": "ok, see this is due to rebase and inclusion of \nMarcus\u0027 commit ef2cd0da30b1a9b",
+      "parentUuid": "fa2559ec_b388cac7",
+      "revId": "942231107aca75c8e510f68e8f9d79888ec3ba14",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
