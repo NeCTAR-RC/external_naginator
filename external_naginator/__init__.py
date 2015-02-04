@@ -330,7 +330,7 @@ class NagiosService(NagiosType):
                       'flap_detection_enabled', 'flap_detection_options',
                       'process_perf_data', 'retain_status_information',
                       'retain_nonstatus_information',
-                      'notification_interval',
+                      'notification_interval', 'register',
                       'first_notification_delay',
                       'notification_period', 'notification_options',
                       'notifications_enabled', 'contacts',
