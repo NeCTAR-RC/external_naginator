@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_fefb2945",
+        "filename": "external_naginator/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2015-02-16T05:31:06Z",
+      "side": 1,
+      "message": "Should this be a constant defined up the top?",
+      "range": {
+        "startLine": 570,
+        "startChar": 53,
+        "endLine": 570,
+        "endChar": 77
+      },
+      "revId": "504ebd9e934648c3eb42524304d95db710ee13bd",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    }
+  ]
+}
