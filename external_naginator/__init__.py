@@ -471,7 +471,7 @@ class CustomNagiosHostGroup(NagiosType):
 
 class NagiosConfig:
     def __init__(self, hostname, port, api_version, output_dir,
-                 nodefacts=None, query={}, environment=None,
+                 nodefacts=None, query=None, environment=None,
                  ssl_key=None, ssl_cert=None, timeout=None):
         self.db = connect(host=hostname,
                           port=port,
@@ -486,7 +486,7 @@ class NagiosConfig:
             self.nodefacts = self.get_nodefacts()
         else:
             self.nodefacts = nodefacts
-        self.query = query
+        self.query = query or {}
         self.nagios_hosts = defaultdict(list,
                                         [(h, [])
                                          for h in self.get_nagios_hosts()])
