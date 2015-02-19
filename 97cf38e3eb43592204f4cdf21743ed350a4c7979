@@ -46,6 +46,54 @@
       "revId": "97cf38e3eb43592204f4cdf21743ed350a4c7979",
       "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_64ede68b",
+        "filename": "config.ini",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000105
+      },
+      "writtenOn": "2015-02-19T01:05:30Z",
+      "side": 1,
+      "message": "ok, so for the record the difference between environment and tag is that they are different things in puppet. \nIn our puppet setup we tag things with the environment which equates them. So they need to be the same in our environment (currently).\nWe could change this script to lookup environment in the config file and supply that as the tag value, but that imposes a restriction based on how we currently have things set up. Perhaps we could make it so that if no tag is specified we supply the environment value as the tag, but  that seems like adding additional complexity for little gain.",
+      "parentUuid": "fa2559ec_be01b13b",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 10
+      },
+      "revId": "97cf38e3eb43592204f4cdf21743ed350a4c7979",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c401323b",
+        "filename": "config.ini",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000105
+      },
+      "writtenOn": "2015-02-19T01:05:30Z",
+      "side": 1,
+      "message": "fixed in review 2135",
+      "parentUuid": "fa2559ec_b988abc7",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 10
+      },
+      "revId": "97cf38e3eb43592204f4cdf21743ed350a4c7979",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": false
     }
   ]
 }
