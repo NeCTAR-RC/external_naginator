@@ -268,11 +268,9 @@ class NagiosServiceGroup(NagiosType):
                       'servicegroup_members', 'notes', 'notes_url',
                       'action_url'])
 
-    def generate(self):
-        super(NagiosServiceGroup, self).generate()
-        self.generate_auto_servicegroups()
 
-    def generate_auto_servicegroups(self):
+class NagiosAutoServiceGroup(NagiosType):
+    def generate(self):
         # Query puppetdb only throwing back the resource that match
         # the Nagios type.
         unique_list = set([])
@@ -542,11 +540,13 @@ class NagiosConfig:
                 query=self.resource_query_string(type='Nagios_host'),
                 environment=self.environment)])
 
-    def generate_all(self):
+    def generate_all(self, excluded_classes=[]):
         for cls in NagiosType.__subclasses__():
             if cls.__name__.startswith('Custom'):
                 continue
             if cls.__name__ == 'NagiosHost':
+                continue
+            if cls.__name__ in excluded_classes:
                 continue
             inst = cls(db=self.db,
                        output_dir=self.output_dir,
@@ -679,6 +679,12 @@ def main():
                       for d in get_nagios_cfg('extra_cfg_dirs', '').split(',')
                       if d]
 
+    get_naginator_cfg = partial(config_get, config, 'naginator')
+    excluded_classes = [d.strip()
+                        for d in (get_naginator_cfg('excluded_classes', '')
+                                  .split(','))
+                        if d]
+
     hostgroups = {}
     for section in config.sections():
         if not section.startswith('hostgroup_'):
@@ -694,6 +700,7 @@ def main():
                              ssl_key=ssl_key,
                              ssl_cert=ssl_cert,
                              timeout=timeout,
+                             excluded_classes=excluded_classes,
                              hostgroups=hostgroups) as nagios_config:
             if args.update:
                 update_config(nagios_config, args.output_dir,
@@ -711,7 +718,8 @@ def main():
 
 @contextmanager
 def generate_config(hostname, port, api_version, query, environment,
-                    ssl_key, ssl_cert, timeout, hostgroups={}):
+                    ssl_key, ssl_cert, timeout, excluded_classes=[],
+                    hostgroups={}):
     with temporary_dir() as tmp_dir:
         new_config_dir = path.join(tmp_dir, 'new_config')
 
@@ -728,7 +736,7 @@ def generate_config(hostname, port, api_version, query, environment,
                            ssl_key=ssl_key,
                            ssl_cert=ssl_cert,
                            timeout=timeout)
-        cfg.generate_all()
+        cfg.generate_all(excluded_classes=excluded_classes)
 
         for name, cfg in hostgroups.items():
             group = CustomNagiosHostGroup(cfg.db,
