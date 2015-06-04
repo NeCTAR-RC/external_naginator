@@ -243,6 +243,9 @@ class NagiosHost(NagiosType):
             if r.name in unique_list:
                 LOG.info("duplicate: %s" % r.name)
                 continue
+            if r.name == "undef":
+                LOG.info("found undef")
+                continue
             unique_list.add(r.name)
 
             if self.is_host(r):
