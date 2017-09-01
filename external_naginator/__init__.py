@@ -176,8 +176,7 @@ class NagiosType(object):
         # the Nagios type.
         unique_list = set([])
 
-        for r in self.db.resources(query=self.query_string(),
-                                   environment=self.environment):
+        for r in self.db.resources(query=self.query_string()):
             # Make sure we do not try and make more than one resource
             # for each one.
             if r.name in unique_list:
@@ -239,8 +238,7 @@ class NagiosHost(NagiosType):
         stream = open(self.file_name(), 'w')
         # Query puppetdb only throwing back the resource that match
         # the Nagios type.
-        for r in self.db.resources(query=self.query_string(),
-                                   environment=self.environment):
+        for r in self.db.resources(query=self.query_string()):
             # Make sure we do not try and make more than one resource
             # for each one.
             if r.name in unique_list:
@@ -277,8 +275,7 @@ class NagiosAutoServiceGroup(NagiosType):
 
         # Keep track of sevice to hostname
         servicegroups = defaultdict(list)
-        for r in self.db.resources(query=self.query_string('Nagios_service'),
-                                   environment=self.environment):
+        for r in self.db.resources(query=self.query_string('Nagios_service')):
             # Make sure we do not try and make more than one resource
             # for each one.
             if r.name in unique_list:
@@ -475,7 +472,6 @@ class NagiosConfig:
                           ssl_verify=ssl_verify,
                           ssl_key=ssl_key,
                           ssl_cert=ssl_cert,
-                          api_version=api_version,
                           timeout=timeout)
         self.db.resources = self.db.resources
         self.output_dir = output_dir
@@ -503,8 +499,8 @@ class NagiosConfig:
     def node_query_string(self, **kwargs):
         if not self.environment:
             return None
-        query = {'catalog-environment': self.environment,
-                 'facts-environment': self.environment}
+        query = {'catalog_environment': self.environment,
+                 'facts_environment': self.environment}
         query.update(kwargs)
         return self.query_string(**query)
 
@@ -537,8 +533,7 @@ class NagiosConfig:
         """
         return set(
             [h.name for h in self.db.resources(
-                query=self.resource_query_string(type='Nagios_host'),
-                environment=self.environment)])
+                query=self.resource_query_string(type='Nagios_host'))])
 
     def generate_all(self, excluded_classes=[]):
         for cls in NagiosType.__subclasses__():
