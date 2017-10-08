@@ -287,9 +287,8 @@ class NagiosAutoServiceGroup(NagiosType):
 
             if 'host_name' in r.parameters \
                and r.parameters['host_name'] not in self.nagios_hosts:
-                LOG.info("Can't find host %s skipping %s, %s" % (
+                LOG.info("Can't find host %s skipping, %s" % (
                     r.parameters['host_name'],
-                    self.nagios_type,
                     r.name))
                 continue
 
