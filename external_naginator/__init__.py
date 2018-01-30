@@ -469,9 +469,10 @@ class CustomNagiosHostGroup(NagiosType):
 class NagiosConfig:
     def __init__(self, hostname, port, api_version, output_dir,
                  nodefacts=None, query=None, environment=None,
-                 ssl_key=None, ssl_cert=None, timeout=None):
+                 ssl_verify=None, ssl_key=None, ssl_cert=None, timeout=None):
         self.db = connect(host=hostname,
                           port=port,
+                          ssl_verify=ssl_verify,
                           ssl_key=ssl_key,
                           ssl_cert=ssl_cert,
                           api_version=api_version,
@@ -667,6 +668,7 @@ def main():
     # PuppetDB Variables
     get_puppet_cfg = partial(config_get, config, 'puppet')
     environment = get_puppet_cfg('environment')
+    ssl_verify = get_puppet_cfg('ca_cert')
     ssl_key = get_puppet_cfg('ssl_key')
     ssl_cert = get_puppet_cfg('ssl_cert')
     timeout = int(get_puppet_cfg('timeout', 20))
@@ -696,6 +698,7 @@ def main():
                              api_version=args.api_version,
                              query=query,
                              environment=environment,
+                             ssl_verify=ssl_verify,
                              ssl_key=ssl_key,
                              ssl_cert=ssl_cert,
                              timeout=timeout,
@@ -717,8 +720,8 @@ def main():
 
 @contextmanager
 def generate_config(hostname, port, api_version, query, environment,
-                    ssl_key, ssl_cert, timeout, excluded_classes=[],
-                    hostgroups={}):
+                    ssl_verify, ssl_key, ssl_cert, timeout,
+                    excluded_classes=[], hostgroups={}):
     with temporary_dir() as tmp_dir:
         new_config_dir = path.join(tmp_dir, 'new_config')
 
@@ -732,6 +735,7 @@ def generate_config(hostname, port, api_version, query, environment,
                            output_dir=new_config_dir,
                            query=query,
                            environment=environment,
+                           ssl_verify=ssl_verify,
                            ssl_key=ssl_key,
                            ssl_cert=ssl_cert,
                            timeout=timeout)
