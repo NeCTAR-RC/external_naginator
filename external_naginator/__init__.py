@@ -125,9 +125,15 @@ class NagiosType(object):
         if not nagios_type:
             nagios_type = 'Nagios_' + self.nagios_type
 
+        if self.environment:
+            env_query = [('environment', self.environment),]
+        else:
+            env_query = []
         if not self.query:
-            return '["=", "type", "%s"]' % (nagios_type)
-        query_parts = ['["=", "%s", "%s"]' % q for q in self.query]
+            query = env_query
+        else:
+            query = self.query + env_query
+        query_parts = ['["=", "%s", "%s"]' % q for q in query]
         query_parts.append('["=", "type", "%s"]' % (nagios_type))
         return '["and", %s]' % ", ".join(query_parts)
 
