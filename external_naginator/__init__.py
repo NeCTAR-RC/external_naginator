@@ -7,14 +7,14 @@ import grp
 import pdb
 import stat
 import logging
-import ConfigParser
+import configparser
 import filecmp
 import shutil
 import tempfile
 import subprocess
 import traceback
 from os import path
-from StringIO import StringIO
+from io import StringIO
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
@@ -48,9 +48,9 @@ def nagios_config(config_dirs):
     """
     temp_dir = tempfile.mkdtemp()
     set_permissions(temp_dir, stat.S_IRGRP + stat.S_IWGRP + stat.S_IXGRP)
-    with tempfile.NamedTemporaryFile() as config:
+    with tempfile.NamedTemporaryFile(mode="w") as config:
         set_permissions(config.name, stat.S_IRGRP)
-        config_lines = ["cfg_file=/etc/nagios3/commands.cfg",
+        config_lines = ["cfg_file=/etc/nagios4/commands.cfg",
                         "cfg_dir=/etc/nagios-plugins/config",
                         "check_result_path=%s" % temp_dir]
         config_lines.extend(["cfg_dir=%s" % s for s in config_dirs])
@@ -66,11 +66,12 @@ def nagios_verify(config_dirs, config_file=None):
 
     with nagios_config(config_dirs) as tmp_config_file:
         LOG.info("Validating Nagios config %s" % ', '.join(config_dirs))
-        p = subprocess.Popen(['/usr/sbin/nagios3', '-v',
+        p = subprocess.Popen(['/usr/sbin/nagios4', '-v',
                               config_file or tmp_config_file],
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE,
+                             encoding='utf8')
         output, err = p.communicate()
         return_code = p.returncode
         for line in output.split('\n'):
@@ -85,10 +86,11 @@ def nagios_verify(config_dirs, config_file=None):
 def nagios_restart():
     """Restart Nagios"""
     LOG.info("Restarting Nagios")
-    p = subprocess.Popen(['/usr/sbin/service', 'nagios3', 'restart'],
+    p = subprocess.Popen(['/usr/sbin/service', 'nagios4', 'restart'],
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE,
+                         encoding='utf8')
     output, err = p.communicate()
     return_code = p.returncode
     if return_code > 0:
@@ -582,7 +584,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
     # Verify the config in place.
     try:
         nagios_verify([output_dir] + extra_cfg_dirs, nagios_cfg)
-    except:
+    except Exception:
         # Remove the new config
         map(lambda d: os.remove(path.join(output_dir, d)),
             os.listdir(output_dir))
@@ -596,7 +598,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
 def config_get(config, section, option, default=None):
     try:
         return config.get(section, option)
-    except:
+    except Exception:
         return default
 
 
@@ -652,7 +654,7 @@ def main():
         stream=sys.stderr,
         format='%(asctime)s %(name)s %(levelname)s %(message)s')
 
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     if args.config:
         config.readfp(open(args.config))
 
@@ -670,7 +672,7 @@ def main():
 
     # Nagios Variables
     get_nagios_cfg = partial(config_get, config, 'nagios')
-    nagios_cfg = get_nagios_cfg('nagios_cfg', '/etc/nagios3/nagios.cfg')
+    nagios_cfg = get_nagios_cfg('nagios_cfg', '/etc/nagios4/nagios.cfg')
     extra_cfg_dirs = [d.strip()
                       for d in get_nagios_cfg('extra_cfg_dirs', '').split(',')
                       if d]
@@ -704,7 +706,7 @@ def main():
                               nagios_cfg, extra_cfg_dirs)
         if not args.no_restart:
             nagios_restart()
-    except:
+    except Exception:
         if args.pdb:
             type, value, tb = sys.exc_info()
             traceback.print_exc()
