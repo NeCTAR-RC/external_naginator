@@ -2,12 +2,12 @@ Source: python-external-naginator
 Section: unknown
 Priority: optional
 Maintainer: Russell Sim <russell.sim@gmail.com>
-Build-Depends: debhelper (>= 9), python-all (>= 2.6), python-setuptools
+Build-Depends: debhelper (>= 9), dh-python, python3-all (>= 3.6), python3-setuptools, python3-pypuppetdb
 Standards-Version: 3.9.5
 Homepage: https://github.com/NeCTAR-RC/external_naginator
 
-Package: python-external-naginator
+Package: python3-external-naginator
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}
 Description: PuppetDB external naginator.
  External Naginator, PuppetDB external naginator.
