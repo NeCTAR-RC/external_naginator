@@ -7,14 +7,14 @@ import grp
 import pdb
 import stat
 import logging
-import ConfigParser
+import configparser
 import filecmp
 import shutil
 import tempfile
 import subprocess
 import traceback
 from os import path
-from StringIO import StringIO
+from io import StringIO
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
@@ -582,7 +582,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
     # Verify the config in place.
     try:
         nagios_verify([output_dir] + extra_cfg_dirs, nagios_cfg)
-    except:
+    except Exception:
         # Remove the new config
         map(lambda d: os.remove(path.join(output_dir, d)),
             os.listdir(output_dir))
@@ -596,7 +596,7 @@ def update_nagios(new_config_dir, updated_config, removed_config,
 def config_get(config, section, option, default=None):
     try:
         return config.get(section, option)
-    except:
+    except Exception:
         return default
 
 
@@ -652,7 +652,7 @@ def main():
         stream=sys.stderr,
         format='%(asctime)s %(name)s %(levelname)s %(message)s')
 
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     if args.config:
         config.readfp(open(args.config))
 
@@ -704,7 +704,7 @@ def main():
                               nagios_cfg, extra_cfg_dirs)
         if not args.no_restart:
             nagios_restart()
-    except:
+    except Exception:
         if args.pdb:
             type, value, tb = sys.exc_info()
             traceback.print_exc()
