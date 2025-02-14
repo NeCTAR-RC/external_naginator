@@ -656,7 +656,7 @@ def main():
 
     config = configparser.ConfigParser()
     if args.config:
-        config.readfp(open(args.config))
+        config.read_file(open(args.config))
 
     query = {}
     if 'query' in config.sections():
